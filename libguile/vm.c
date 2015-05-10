@@ -48,6 +48,10 @@
 #include "libguile/vm.h"
 #include "libguile/vm-builtins.h"
 
+#if BUILD_VM_LIGHTNING == 1
+#include "vm-lightning.h"
+#endif
+
 static int vm_default_engine = SCM_VM_REGULAR_ENGINE;
 
 /* Unfortunately we can't snarf these: snarfed things are only loaded up from
