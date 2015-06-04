@@ -207,6 +207,27 @@
   do {                                                              \
   } while (0)
 
+/* Macros for tracing JIT */
+#ifdef VM_TJIT
+# define TJIT_MERGE(n)                                     \
+  if (tjit_state == SCM_TJIT_STATE_TRACE)                  \
+    {                                                      \
+      ip = scm_tjit_merge (ip, fp, &tjit_state,            \
+                           &loop_start, &loop_end,         \
+                           &tjit_bc_idx, tjit_bcs,         \
+                           &tjit_ips_idx, tjit_ips,        \
+                           thread, vp, registers, resume); \
+    }
+# define TJIT_ENTER(n)                                                  \
+  if (n < 0 && tjit_state == SCM_TJIT_STATE_INTERPRET)                  \
+    {                                                                   \
+      ip = scm_tjit_enter (ip, n, &tjit_state, &loop_start, &loop_end,  \
+                           thread, vp, registers, resume);              \
+    }
+#else
+# define TJIT_MERGE(n) /* */
+# define TJIT_ENTER(n) /* */
+#endif
 
 #ifdef HAVE_LABELS_AS_VALUES
 # define BEGIN_DISPATCH_SWITCH /* */
@@ -215,6 +236,7 @@
   do                                            \
     {                                           \
       ip += n;                                  \
+      TJIT_MERGE (n);                           \
       NEXT_HOOK ();                             \
       op = *ip;                                 \
       goto *jump_table[op & 0xff];              \
@@ -235,6 +257,7 @@
   do                                            \
     {                                           \
       ip += n;                                  \
+      TJIT_MERGE (n);                           \
       goto vm_start;                            \
     }                                           \
   while (0)
@@ -461,6 +484,36 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
 
   /* Current opcode: A cache of *ip.  */
   register scm_t_uint32 op;
+
+#ifdef VM_TJIT
+  /* Current tracing state. */
+  size_t tjit_state = SCM_TJIT_STATE_INTERPRET;
+
+  /* Instruction pointer to start a loop. */
+  scm_t_uintptr loop_start = NULL;
+
+  /* Instruction pointer to end a loop. */
+  scm_t_uintptr loop_end = NULL;
+
+  /* Current index of traced bytecode. */
+  scm_t_uint32 tjit_bc_idx = 0;
+
+  /* Buffer to contain traced bytecode. */
+  scm_t_uint32 *tjit_bcs =
+    scm_inline_gc_malloc_pointerless (thread,
+                                      sizeof (scm_t_uint32 *) *
+                                      SCM_I_INUM (tjit_max_record) * 5);
+
+  /* Current index of traced IPs. */
+  scm_t_uint32 tjit_ips_idx = 0;
+
+  /* Buffer to contain traced IPs. */
+  scm_t_uintptr *tjit_ips =
+    scm_inline_gc_malloc_pointerless (thread,
+                                      sizeof (scm_t_uint32 *) *
+                                      SCM_I_INUM (tjit_max_record));
+
+#endif
 
 #ifdef HAVE_LABELS_AS_VALUES
   static const void *jump_table_[256] = {
@@ -1371,6 +1424,7 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
     {
       scm_t_int32 offset = op;
       offset >>= 8; /* Sign-extending shift. */
+      TJIT_ENTER (offset); /* Initial addition of tracing JIT VM */
       NEXT (offset);
     }
 
@@ -4170,6 +4224,9 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
 #undef VM_VALIDATE_BYTEVECTOR
 #undef VM_VALIDATE_PAIR
 #undef VM_VALIDATE_STRUCT
+
+#undef TJIT_MERGE
+#undef TJIT_ENTER
 
 /*
 (defun renumber-ops ()

@@ -518,7 +518,7 @@ noinst_HEADERS = conv-integer.i.c conv-uinteger.i.c		\
 		 weak-list.h
 
 # vm instructions
-noinst_HEADERS += vm-engine.c vm-mjit.c
+noinst_HEADERS += vm-engine.c vm-mjit.c vm-tjit.c
 
 libguile_@GUILE_EFFECTIVE_VERSION@_la_DEPENDENCIES = @LIBLOBJS@
 
@@ -686,6 +686,7 @@ modinclude_HEADERS =				\
 	vm-builtins.h				\
 	vm-expand.h				\
 	vm.h					\
+	vm-tjit.h				\
 	vports.h				\
 	weak-set.h				\
 	weak-table.h				\
