@@ -209,24 +209,30 @@
 
 /* Macros for tracing JIT */
 #ifdef VM_TJIT
-# define TJIT_MERGE(n)                                     \
-  if (tjit_state == SCM_TJIT_STATE_TRACE)                  \
-    {                                                      \
-      ip = scm_tjit_merge (ip, fp, &tjit_state,            \
-                           &loop_start, &loop_end,         \
-                           &tjit_bc_idx, tjit_bcs,         \
-                           &tjit_ips_idx, tjit_ips,        \
-                           thread, vp, registers, resume); \
+# define TJIT_MERGE(n)                          \
+  if (tjit_state == SCM_TJIT_STATE_RECORD)      \
+    {                                           \
+      scm_tjit_merge (ip, &tjit_state,          \
+                      &loop_start, &loop_end,   \
+                      vp, fp,                   \
+                      &tjit_bc_idx, tjit_bcs,   \
+                      &tjit_ips_idx, tjit_ips); \
     }
-# define TJIT_ENTER(n)                                                  \
-  if (n < 0 && tjit_state == SCM_TJIT_STATE_INTERPRET)                  \
-    {                                                                   \
-      ip = scm_tjit_enter (ip, n, &tjit_state, &loop_start, &loop_end,  \
-                           thread, vp, registers, resume);              \
+# define TJIT_ENTER(n)                                          \
+  if (n < 0 && tjit_state == SCM_TJIT_STATE_INTERPRET)          \
+    {                                                           \
+      ip = scm_tjit_enter (ip, &tjit_state, n,                  \
+                           &loop_start, &loop_end,              \
+                           thread, vp, registers, resume);      \
+      NEXT (0);                                                 \
+    }                                                           \
+  else                                                          \
+    {                                                           \
+      NEXT (n);                                                 \
     }
 #else
 # define TJIT_MERGE(n) /* */
-# define TJIT_ENTER(n) /* */
+# define TJIT_ENTER(n) NEXT (n)
 #endif
 
 #ifdef HAVE_LABELS_AS_VALUES
@@ -1424,8 +1430,8 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
     {
       scm_t_int32 offset = op;
       offset >>= 8; /* Sign-extending shift. */
-      TJIT_ENTER (offset); /* Initial addition of tracing JIT VM */
-      NEXT (offset);
+      /* Enter native code when cache is found */
+      TJIT_ENTER (offset);
     }
 
   /* br-if-true test:24 invert:1 _:7 offset:24
