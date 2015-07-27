@@ -352,7 +352,7 @@
           {                                                             \
             scm_t_int32 offset = ip[2];                                 \
             offset >>= 8; /* Sign-extending shift. */                   \
-            NEXT (offset);                                              \
+            TJIT_ENTER (offset);                                        \
           }                                                             \
         NEXT (3);                                                       \
       }                                                                 \
@@ -366,7 +366,7 @@
           {                                                             \
             scm_t_int32 offset = ip[2];                                 \
             offset >>= 8; /* Sign-extending shift. */                   \
-            NEXT (offset);                                              \
+            TJIT_ENTER (offset);                                        \
           }                                                             \
         NEXT (3);                                                       \
       }                                                                 \
