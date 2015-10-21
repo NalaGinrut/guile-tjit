@@ -335,6 +335,21 @@ SOURCES =					\
   system/vm/vm.scm				\
 						\
   system/syntax.scm				\
+  system/vm/native/lightning.scm		\
+  system/vm/native/debug.scm			\
+  system/vm/native/cfg.scm			\
+  system/vm/native/mjit.scm			\
+  system/vm/native/tjit.scm			\
+  system/vm/native/tjit/assembler.scm		\
+  system/vm/native/tjit/compile-ir.scm		\
+  system/vm/native/tjit/compile-native.scm	\
+  system/vm/native/tjit/fragment.scm		\
+  system/vm/native/tjit/ir.scm			\
+  system/vm/native/tjit/parameters.scm		\
+  system/vm/native/tjit/ra.scm			\
+  system/vm/native/tjit/registers.scm		\
+  system/vm/native/tjit/snapshot.scm		\
+  system/vm/native/tjit/variables.scm		\
 						\
   system/xref.scm				\
 						\
