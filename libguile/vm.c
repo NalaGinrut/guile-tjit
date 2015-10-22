@@ -49,7 +49,6 @@
 #include "libguile/vm-builtins.h"
 
 #if BUILD_VM_LIGHTNING == 1
-#include "vm-mjit.h"
 #include "vm-tjit.h"
 #endif
 
@@ -62,7 +61,6 @@ static SCM sym_vm_error;
 static SCM sym_keyword_argument_error;
 static SCM sym_regular;
 static SCM sym_debug;
-static SCM sym_mjit;
 static SCM sym_tjit;
 
 /* The page size.  */
@@ -757,12 +755,6 @@ scm_i_call_with_current_continuation (SCM proc)
 typedef SCM (*scm_t_vm_engine) (scm_i_thread *current_thread, struct scm_vm *vp,
                                 scm_i_jmp_buf *registers, int resume);
 
-#define VM_NAME vm_mjit_engine
-#define VM_USE_HOOKS 0
-#include "vm-mjit.c"
-#undef VM_USE_HOOKS
-#undef VM_NAME
-
 #define VM_NAME vm_tjit_engine
 #define VM_USE_HOOKS 0
 #define VM_TJIT 1
@@ -775,7 +767,7 @@ typedef SCM (*scm_t_vm_engine) (scm_i_thread *current_thread, struct scm_vm *vp,
 #undef VM_NAME
 
 static const scm_t_vm_engine vm_engines[SCM_VM_NUM_ENGINES] =
-  { vm_regular_engine, vm_debug_engine, vm_mjit_engine, vm_tjit_engine };
+  { vm_regular_engine, vm_debug_engine, vm_tjit_engine };
 
 static union scm_vm_stack_element*
 allocate_stack (size_t size)
@@ -1351,8 +1343,6 @@ symbol_to_vm_engine (SCM engine, const char *FUNC_NAME)
     return SCM_VM_REGULAR_ENGINE;
   else if (scm_is_eq (engine, sym_debug))
     return SCM_VM_DEBUG_ENGINE;
-  else if (scm_is_eq (engine, sym_mjit))
-    return SCM_VM_MJIT_ENGINE;
   else if (scm_is_eq (engine, sym_tjit))
     return SCM_VM_TJIT_ENGINE;
   else
@@ -1368,8 +1358,6 @@ vm_engine_to_symbol (int engine, const char *FUNC_NAME)
       return sym_regular;
     case SCM_VM_DEBUG_ENGINE:
       return sym_debug;
-    case SCM_VM_MJIT_ENGINE:
-      return sym_mjit;
     case SCM_VM_TJIT_ENGINE:
       return sym_tjit;
     default:
@@ -1554,7 +1542,6 @@ scm_bootstrap_vm (void)
   sym_keyword_argument_error = scm_from_latin1_symbol ("keyword-argument-error");
   sym_regular = scm_from_latin1_symbol ("regular");
   sym_debug = scm_from_latin1_symbol ("debug");
-  sym_mjit = scm_from_latin1_symbol ("mjit");
   sym_tjit = scm_from_latin1_symbol ("tjit");
 
   vm_boot_continuation = scm_i_make_program (vm_boot_continuation_code);
