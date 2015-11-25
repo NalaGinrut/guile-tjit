@@ -211,30 +211,51 @@
 
 #ifdef VM_TJIT
 # if BUILD_VM_LIGHTNING == 1
-#  define TJIT_MERGE(n)                                         \
+#  define VM_TJIT_MERGE(n)                                      \
   if (tjit_state->vm_state == SCM_TJIT_VM_STATE_RECORD)         \
     {                                                           \
       SCM_TJIT_MERGE ();                                        \
     }
-#  define TJIT_ENTER(n)                                                 \
+#  define VM_TJIT_JUMP(n)                                               \
   do {                                                                  \
-    if (n < 0 && tjit_state->vm_state == SCM_TJIT_VM_STATE_INTERPRET)   \
+    if (n < 0                                                           \
+        && tjit_state->vm_state == SCM_TJIT_VM_STATE_INTERPRET)         \
       {                                                                 \
-        SCM_TJIT_ENTER (n);                                             \
+        SCM_TJIT_ENTER (n, ip + n, ip,                                  \
+                        SCM_TJIT_TRACE_JUMP,                            \
+                        tjit_jump_counter_table,                        \
+                        tjit_hot_loop);                                 \
         NEXT (0);                                                       \
       }                                                                 \
     else                                                                \
       NEXT (n);                                                         \
   } while (0)
+#  define VM_TJIT_CALL(old_ip)                                          \
+  do {                                                                  \
+    if (ip < old_ip                                                     \
+        && tjit_state->vm_state == SCM_TJIT_VM_STATE_INTERPRET)         \
+      {                                                                 \
+        SCM_TJIT_ENTER (0, ip, SCM_FRAME_RETURN_ADDRESS (vp->fp),       \
+                        SCM_TJIT_TRACE_CALL,                            \
+                        tjit_call_counter_table,                        \
+                        tjit_hot_call);                                 \
+        NEXT (0);                                                       \
+      }                                                                 \
+    else                                                                \
+      NEXT (0);                                                         \
+  } while (0)
 
 # endif
 #endif
 
-#ifndef TJIT_MERGE
-# define TJIT_MERGE(n) /* */
+#ifndef VM_TJIT_MERGE
+# define VM_TJIT_MERGE(n) /* */
 #endif
-#ifndef TJIT_ENTER
-# define TJIT_ENTER(n) NEXT (n)
+#ifndef VM_TJIT_JUMP
+# define VM_TJIT_JUMP(n) NEXT (n)
+#endif
+#ifndef VM_TJIT_CALL
+# define VM_TJIT_CALL(old_ip) NEXT (0)
 #endif
 
 #ifdef HAVE_LABELS_AS_VALUES
@@ -244,7 +265,7 @@
   do                                            \
     {                                           \
       ip += n;                                  \
-      TJIT_MERGE (n);                           \
+      VM_TJIT_MERGE (n);                        \
       NEXT_HOOK ();                             \
       op = *ip;                                 \
       goto *jump_table[op & 0xff];              \
@@ -265,7 +286,7 @@
   do                                            \
     {                                           \
       ip += n;                                  \
-      TJIT_MERGE (n);                           \
+      VM_TJIT_MERGE (n);                        \
       goto vm_start;                            \
     }                                           \
   while (0)
@@ -352,7 +373,7 @@
           {                                                             \
             scm_t_int32 offset = ip[2];                                 \
             offset >>= 8; /* Sign-extending shift. */                   \
-            TJIT_ENTER (offset);                                        \
+            VM_TJIT_JUMP (offset);                                      \
           }                                                             \
         NEXT (3);                                                       \
       }                                                                 \
@@ -366,7 +387,7 @@
           {                                                             \
             scm_t_int32 offset = ip[2];                                 \
             offset >>= 8; /* Sign-extending shift. */                   \
-            TJIT_ENTER (offset);                                        \
+            VM_TJIT_JUMP (offset);                                      \
           }                                                             \
         NEXT (3);                                                       \
       }                                                                 \
@@ -604,7 +625,7 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
 
       APPLY_HOOK ();
 
-      NEXT (0);
+      VM_TJIT_CALL (SCM_FRAME_RETURN_ADDRESS (vp->fp) - 2);
     }
 
   /* call-label proc:24 _:8 nlocals:24 label:32
@@ -1407,7 +1428,7 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
       scm_t_int32 offset = op;
       offset >>= 8; /* Sign-extending shift. */
       /* Enter native code when cache is found */
-      TJIT_ENTER (offset);
+      VM_TJIT_JUMP (offset);
     }
 
   /* br-if-true test:24 invert:1 _:7 offset:24
@@ -4207,8 +4228,9 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
 #undef VM_VALIDATE_PAIR
 #undef VM_VALIDATE_STRUCT
 
-#undef TJIT_MERGE
-#undef TJIT_ENTER
+#undef VM_TJIT_MERGE
+#undef VM_TJIT_JUMP
+#undef VM_TJIT_CALL
 
 /*
 (defun renumber-ops ()
