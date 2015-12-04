@@ -436,7 +436,7 @@
       {                                                                 \
         scm_t_int32 offset = ip[2];                                     \
         offset >>= 8; /* Sign-extending shift. */                       \
-        NEXT (offset);                                                  \
+        VM_TJIT_JUMP (offset);                                          \
       }                                                                 \
     NEXT (3);                                                           \
   }
@@ -3754,7 +3754,7 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
           {                                                             \
             scm_t_int32 offset = ip[2];                                 \
             offset >>= 8; /* Sign-extending shift. */                   \
-            NEXT (offset);                                              \
+            VM_TJIT_JUMP (offset);                                      \
           }                                                             \
         NEXT (3);                                                       \
       }                                                                 \
@@ -3768,7 +3768,7 @@ VM_NAME (scm_i_thread *thread, struct scm_vm *vp,
           {                                                             \
             scm_t_int32 offset = ip[2];                                 \
             offset >>= 8; /* Sign-extending shift. */                   \
-            NEXT (offset);                                              \
+            VM_TJIT_JUMP (offset);                                      \
           }                                                             \
         NEXT (3);                                                       \
       }                                                                 \
