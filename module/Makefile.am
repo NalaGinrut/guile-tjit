@@ -363,6 +363,7 @@ SOURCES =					\
   system/vm/native/tjit/parameters.scm		\
   system/vm/native/tjit/error.scm		\
   system/vm/native/tjit/gdb.scm			\
+  system/vm/native/tjit/fragment.scm		\
   system/vm/native/tjit/types.scm		\
   system/vm/native/tjit/env.scm			\
   system/vm/native/tjit/snapshot.scm		\
@@ -382,7 +383,6 @@ SOURCES =					\
   system/vm/native/tjit/ir-array.scm		\
   system/vm/native/tjit/ir-misc.scm		\
   system/vm/native/tjit/ra.scm			\
-  system/vm/native/tjit/fragment.scm		\
   system/vm/native/tjit/compile-ir.scm		\
   system/vm/native/tjit/compile-native.scm	\
   system/vm/native/tjit/dump.scm		\
