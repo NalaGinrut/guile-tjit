@@ -359,6 +359,7 @@ SOURCES =					\
   system/syntax.scm				\
   system/vm/native/lightning.scm		\
   system/vm/native/debug.scm			\
+  system/vm/native/tjit/trampoline.scm		\
   system/vm/native/tjit/parameters.scm		\
   system/vm/native/tjit/error.scm		\
   system/vm/native/tjit/gdb.scm			\
@@ -385,6 +386,7 @@ SOURCES =					\
   system/vm/native/tjit/compile-ir.scm		\
   system/vm/native/tjit/compile-native.scm	\
   system/vm/native/tjit/dump.scm		\
+  system/vm/native/tjit/parse.scm               \
   system/vm/native/tjit/tjitc.scm		\
 						\
   system/xref.scm				\
