@@ -231,6 +231,8 @@ SOURCES =					\
   language/trace/trampoline.scm			\
   language/trace/snapshot.scm			\
   language/trace/assembler.scm			\
+  language/trace/primitives.scm			\
+  language/trace/ra.scm				\
   language/trace/parse.scm			\
   language/trace/ir.scm				\
   language/trace/ir-array.scm			\
@@ -247,8 +249,6 @@ SOURCES =					\
   language/trace/ir-specialized.scm		\
   language/trace/ir-string.scm			\
   language/trace/ir-struct.scm			\
-  language/trace/primitives.scm			\
-  language/trace/ra.scm				\
   language/trace/dump.scm			\
   language/trace/compile-ir.scm			\
   language/trace/compile-native.scm		\
