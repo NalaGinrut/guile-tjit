@@ -67,7 +67,11 @@ TJIT_IR_TARGETS = 				\
 
 $(TJIT_IR_TARGETS): language/trace/ir.scm
 
-language/trace/primitives.go: language/trace/assembler.scm
+TJIT_ASM_TARGETS = \
+	language/trace/primitives.go	\
+	language/trace/compile-native.go
+
+$(TJIT_ASM_TARGETS): language/trace/assembler.scm
 
 TJIT_COMPAT_SOURCES = 				\
 	language/trace/compat-x86_64-linux.scm
@@ -217,10 +221,13 @@ SOURCES =					\
   language/scheme/decompile-tree-il.scm		\
   language/scheme/spec.scm			\
 						\
+  system/vm/native/lightning.scm		\
+  system/vm/native/debug.scm			\
+						\
+  language/trace/compat.scm			\
   language/trace/parameters.scm			\
   language/trace/fragment.scm			\
   language/trace/error.scm			\
-  language/trace/compat.scm			\
   language/trace/types.scm			\
   language/trace/env.scm			\
   language/trace/gdb.scm			\
