@@ -43,10 +43,12 @@ ice-9/psyntax-pp.go: ice-9/psyntax.scm ice-9/psyntax-pp.scm
 	  -o "ice-9/psyntax-pp.go" "$(srcdir)/ice-9/psyntax.scm"
 
 system/vm/native/jit-code-t.scm: system/vm/native/gen-code-t.scm
+	mkdir -vp $(abs_builddir)/system/vm/native/ && \
 	$(top_builddir_absolute)/meta/guile --no-auto-compile \
           -s $(srcdir)/system/vm/native/gen-code-t.scm @LIGHTNING_CFLAGS@ \
-          > $(srcdir)/system/vm/native/jit-code-t.scm
+	> $(abs_builddir)/system/vm/native/jit-code-t.scm
 
+ice-9/command-line.go: system/vm/native/lightning.go
 system/vm/native/lightning.go: system/vm/native/jit-code-t.scm
 
 TJIT_IR_TARGETS = 				\
@@ -75,6 +77,9 @@ $(TJIT_ASM_TARGETS): language/trace/assembler.scm
 
 TJIT_COMPAT_SOURCES = 				\
 	language/trace/compat-x86_64-linux.scm
+
+(TJIT_COMPAT_SOURCES):
+	cp -fr $(srcdir)/$(TJIT_COMPAT_SOURCES) $(abs_builddir)/$(TJIT_COMPAT_SOURCES)
 
 language/trace/compat.go: $(TJIT_COMPAT_SOURCES)
 
