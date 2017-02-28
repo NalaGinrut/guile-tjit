@@ -447,7 +447,7 @@ void
 scm_init_lightning (void)
 {
 #ifndef SCM_MAGIC_SNARFER
-#include "lightning-binding.x"
+#include "libguile/lightning-binding.x"
 #endif
   page_size = getpagesize ();
   jit_set_memory_functions (scm_lightning_malloc,
