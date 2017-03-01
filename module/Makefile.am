@@ -48,7 +48,6 @@ system/vm/native/jit-code-t.scm: system/vm/native/gen-code-t.scm
           -s $(srcdir)/system/vm/native/gen-code-t.scm @LIGHTNING_CFLAGS@ \
 	> $(abs_builddir)/system/vm/native/jit-code-t.scm
 
-ice-9/command-line.go: system/vm/native/lightning.go
 system/vm/native/lightning.go: system/vm/native/jit-code-t.scm
 
 TJIT_IR_TARGETS = 				\
@@ -78,10 +77,11 @@ $(TJIT_ASM_TARGETS): language/trace/assembler.scm
 TJIT_COMPAT_SOURCES = 				\
 	language/trace/compat-x86_64-linux.scm
 
-(TJIT_COMPAT_SOURCES):
-	cp -fr $(srcdir)/$(TJIT_COMPAT_SOURCES) $(abs_builddir)/$(TJIT_COMPAT_SOURCES)
+$(TJIT_COMPAT_SOURCES):
+	cp -fr $(srcdir)/$(TJIT_COMPAT_SOURCES).template $(builddir)/$(TJIT_COMPAT_SOURCES)
 
 language/trace/compat.go: $(TJIT_COMPAT_SOURCES)
+ice-9/command-line.go: system/vm/native/lightning.go $(TJIT_COMPAT_SOURCES)
 
 SOURCES =					\
   ice-9/and-let-star.scm			\
