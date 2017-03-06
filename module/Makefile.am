@@ -42,13 +42,12 @@ ice-9/psyntax-pp.go: ice-9/psyntax.scm ice-9/psyntax-pp.scm
 	  -L "$(abs_top_srcdir)/guile-readline"				\
 	  -o "ice-9/psyntax-pp.go" "$(srcdir)/ice-9/psyntax.scm"
 
-system/vm/native/jit-code-t.scm: system/vm/native/gen-code-t.scm
+system/vm/native/jit-code-t.scm.gen: system/vm/native/gen-code-t.scm
 	mkdir -vp $(abs_builddir)/system/vm/native/ && \
-	$(top_builddir_absolute)/meta/guile --no-auto-compile \
-          -s $(srcdir)/system/vm/native/gen-code-t.scm @LIGHTNING_CFLAGS@ \
-	> $(abs_builddir)/system/vm/native/jit-code-t.scm
+	cp -f $(srcdir)/system/vm/native/jit-code-t.scm \
+	$(abs_builddir)/system/vm/native/jit-code-t.scm
 
-system/vm/native/lightning.go: system/vm/native/jit-code-t.scm
+system/vm/native/lightning.go: system/vm/native/jit-code-t.scm.gen
 
 TJIT_IR_TARGETS = 				\
 	language/trace/ir-call.go 		\
@@ -77,11 +76,11 @@ $(TJIT_ASM_TARGETS): language/trace/assembler.scm
 TJIT_COMPAT_SOURCES = 				\
 	language/trace/compat-x86_64-linux.scm
 
-$(TJIT_COMPAT_SOURCES):
-	cp -fr $(srcdir)/$(TJIT_COMPAT_SOURCES).template $(builddir)/$(TJIT_COMPAT_SOURCES)
+$(TJIT_COMPAT_SOURCES).gen:
+	cp -f $(srcdir)/$(TJIT_COMPAT_SOURCES) $(builddir)/$(TJIT_COMPAT_SOURCES)
 
 language/trace/compat.go: $(TJIT_COMPAT_SOURCES)
-ice-9/command-line.go: system/vm/native/lightning.go $(TJIT_COMPAT_SOURCES)
+ice-9/command-line.go: system/vm/native/lightning.go $(TJIT_COMPAT_SOURCES).gen
 
 SOURCES =					\
   ice-9/and-let-star.scm			\
@@ -483,4 +482,4 @@ ETAGS_ARGS +=					\
 ice-9/psyntax-pp.scm.gen:
 	$(top_builddir_absolute)/meta/guile --no-auto-compile -s $(srcdir)/ice-9/compile-psyntax.scm \
 		$(srcdir)/ice-9/psyntax.scm $(srcdir)/ice-9/psyntax-pp.scm
-.PHONY: ice-9/psyntax-pp.scm.gen
+.PHONY: ice-9/psyntax-pp.scm.gen $(TJIT_COMPAT_SOURCES).gen system/vm/native/jit-code-t.scm.gen
