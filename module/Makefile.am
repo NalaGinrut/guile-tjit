@@ -77,7 +77,8 @@ TJIT_COMPAT_SOURCES = 				\
 	language/trace/compat-x86_64-linux.scm
 
 $(TJIT_COMPAT_SOURCES).gen:
-	cp -f $(srcdir)/$(TJIT_COMPAT_SOURCES) $(builddir)/$(TJIT_COMPAT_SOURCES)
+	mkdir -vp $(abs_builddir)/language/trace/ && \
+	cp -f $(srcdir)/$(TJIT_COMPAT_SOURCES) $(abs_builddir)/$(TJIT_COMPAT_SOURCES)
 
 language/trace/compat.go: $(TJIT_COMPAT_SOURCES)
 ice-9/command-line.go: system/vm/native/lightning.go $(TJIT_COMPAT_SOURCES).gen
