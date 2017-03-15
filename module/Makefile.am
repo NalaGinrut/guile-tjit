@@ -44,7 +44,7 @@ ice-9/psyntax-pp.go: ice-9/psyntax.scm ice-9/psyntax-pp.scm
 
 system/vm/native/jit-code-t.scm.gen: system/vm/native/gen-code-t.scm
 	mkdir -vp $(abs_builddir)/system/vm/native/ && \
-	cp -f $(srcdir)/system/vm/native/jit-code-t.scm \
+	cp -n $(srcdir)/system/vm/native/jit-code-t.scm \
 	$(abs_builddir)/system/vm/native/jit-code-t.scm
 
 system/vm/native/lightning.go: system/vm/native/jit-code-t.scm.gen
@@ -78,7 +78,7 @@ TJIT_COMPAT_SOURCES = 				\
 
 $(TJIT_COMPAT_SOURCES).gen:
 	mkdir -vp $(abs_builddir)/language/trace/ && \
-	cp -f $(srcdir)/$(TJIT_COMPAT_SOURCES) $(abs_builddir)/$(TJIT_COMPAT_SOURCES)
+	cp -n $(srcdir)/$(TJIT_COMPAT_SOURCES) $(abs_builddir)/$(TJIT_COMPAT_SOURCES)
 
 language/trace/compat.go: $(TJIT_COMPAT_SOURCES)
 ice-9/command-line.go: system/vm/native/lightning.go $(TJIT_COMPAT_SOURCES).gen
